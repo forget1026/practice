@@ -8,7 +8,6 @@ import com.forget1026.practice.request.SearchQueryRequest;
 import com.forget1026.practice.response.SearchQueryResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,9 +19,9 @@ public class PracticeRestService {
    private final PracticeListRepository practiceListRepository;
    private final APIKeys apiKeys;
 
-    @Transactional
     public PracticeKakaoDTO getBlogData(SearchQueryRequest request) {
-        practiceListRepository.practiceListAddCount(request.getQuery());
+        practiceListRepository.practiceListAddCount(request.getQuery()); // 이건 단순 조회수 카운팅
+
         return kakaoAPIClient.getBlogData(apiKeys.getKAKAO_KEY(), request);
     }
 

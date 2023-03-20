@@ -7,24 +7,25 @@ import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
+@Getter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "practice_list")
 public class PracticeList extends JpaBaseEntity implements Persistable<String> {
     @Id
-    @Getter
-    @Column
     private String query;
 
-    @Getter
     @Setter
     private Long count;
 
-    public static PracticeList createQuery(String query, Long count) {
-        return new PracticeList(query, count);
-    }
+    private Integer pageableCount;
+
+    @OneToMany(mappedBy = "practiceList")
+    private List<BlogEntity> blogEntityList = new ArrayList<>();
 
     @Override
     public String getId() {
@@ -35,6 +36,4 @@ public class PracticeList extends JpaBaseEntity implements Persistable<String> {
     public boolean isNew() {
         return getCreatedDate() == null;
     }
-
-
 }
