@@ -4,7 +4,6 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-!**/src/main/**/keys/
 
 ### STS ###
 .apt_generated
@@ -36,3 +35,4 @@ out/
 
 ### VS Code ###
 .vscode/
+/src/main/java/com/forget1026/practice/keys/APIKeys.java
