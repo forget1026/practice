@@ -1,6 +1,6 @@
 package com.forget1026.practice.controller;
 
-import com.forget1026.practice.dto.PracticeKakaoDTO;
+import com.forget1026.practice.entity.BlogEntity;
 import com.forget1026.practice.request.SearchQueryRequest;
 import com.forget1026.practice.response.SearchQueryResponse;
 import com.forget1026.practice.service.PracticeRestService;
@@ -17,7 +17,7 @@ public class PracticeRestController {
     private final PracticeRestService practiceRestService;
 
     @GetMapping("/search")
-    public PracticeKakaoDTO getBlogData(@ModelAttribute SearchQueryRequest request) {
+    public List<BlogEntity> getBlogData(@ModelAttribute SearchQueryRequest request) {
         return practiceRestService.getBlogData(request);
     }
 

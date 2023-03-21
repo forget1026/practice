@@ -13,7 +13,9 @@ public interface PracticeListRepository extends JpaRepository<PracticeList, Stri
 
     @Modifying
     @Transactional
-    @Query(value = "insert into practice_list (query, count) values(:query, 1) ON DUPLICATE KEY UPDATE count = count + 1",
+    @Query(value = "insert into practice_list (query, count, pageable_count) values(:query, 1, -1) ON DUPLICATE KEY UPDATE count = count + 1",
             nativeQuery = true)
     void practiceListAddCount(String query);
+
+
 }

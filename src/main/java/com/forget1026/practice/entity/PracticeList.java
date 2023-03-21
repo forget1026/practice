@@ -22,10 +22,14 @@ public class PracticeList extends JpaBaseEntity implements Persistable<String> {
     @Setter
     private Long count;
 
+    @Setter
     private Integer pageableCount;
 
     @OneToMany(mappedBy = "practiceList")
-    private List<BlogEntity> blogEntityList = new ArrayList<>();
+    private List<AccuracyEntity> accuracyEntityList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "practiceList")
+    private List<RecencyEntity> recencyEntityList = new ArrayList<>();
 
     @Override
     public String getId() {
@@ -35,5 +39,12 @@ public class PracticeList extends JpaBaseEntity implements Persistable<String> {
     @Override
     public boolean isNew() {
         return getCreatedDate() == null;
+    }
+
+    public void setAccuracyEntityList(List<AccuracyEntity> accuracyEntities) {
+        for(AccuracyEntity accuracy : accuracyEntities) {
+            this.accuracyEntityList.add(accuracy);
+            accuracy.setPracticeList(this);
+        }
     }
 }

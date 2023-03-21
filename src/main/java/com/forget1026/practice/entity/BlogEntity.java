@@ -1,14 +1,15 @@
 package com.forget1026.practice.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 
 @Getter
+@Setter
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class BlogEntity extends JpaBaseEntity {
@@ -29,15 +30,23 @@ public class BlogEntity extends JpaBaseEntity {
 
     private ZonedDateTime datetime;     // 블로그 글 작성시간
 
-    @OneToOne
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "accuracy_id")
     private AccuracyEntity accuracy;
 
-    @OneToOne
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "recency_id")
     private RecencyEntity recency;
 
-    @ManyToOne
-    @JoinColumn(name = "practice_list_id")
-    private PracticeList practiceList;
+    public void setAccuracy(AccuracyEntity accuracyEntity) {
+        this.accuracy = accuracyEntity;
+        accuracyEntity.setBlogEntity(this);
+    }
+
+    public void setRecency(RecencyEntity recencyEntity) {
+        this.recency = recencyEntity;
+        recencyEntity.setBlogEntity(this);
+    }
 }

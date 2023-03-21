@@ -1,21 +1,23 @@
 package com.forget1026.practice.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 @Getter
 @Entity
+@Builder
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccuracyEntity extends JpaBaseEntity {
     @Id
-    private Long id;
+    private Integer id;
 
     @OneToOne(mappedBy = "accuracy")
     BlogEntity blogEntity;
+
+    @ManyToOne
+    @JoinColumn(name = "practice_list_id")
+    private PracticeList practiceList;
 }
