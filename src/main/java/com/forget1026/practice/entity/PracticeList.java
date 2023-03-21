@@ -42,9 +42,16 @@ public class PracticeList extends JpaBaseEntity implements Persistable<String> {
     }
 
     public void setAccuracyEntityList(List<AccuracyEntity> accuracyEntities) {
-        for(AccuracyEntity accuracy : accuracyEntities) {
+        for (AccuracyEntity accuracy : accuracyEntities) {
             this.accuracyEntityList.add(accuracy);
             accuracy.setPracticeList(this);
+        }
+    }
+
+    public void setRecencyEntityList(List<RecencyEntity> recencyEntities) {
+        for (RecencyEntity recency : recencyEntities) {
+            this.recencyEntityList.add(recency);
+            recency.setPracticeList(this);
         }
     }
 }

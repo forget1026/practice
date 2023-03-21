@@ -19,6 +19,7 @@ public class BlogEntity extends JpaBaseEntity {
 
     private String title;               // 블로그 글 제목
 
+    @Column(columnDefinition = "TEXT")
     private String contents;            // 블로그 글 요약
 
     @Column(unique = true)

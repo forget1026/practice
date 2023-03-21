@@ -1,20 +1,18 @@
 package com.forget1026.practice.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Getter
 @Setter
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecencyEntity {
     @Id
-    private Long id;
+    private Integer id;
 
     @OneToOne(mappedBy = "recency")
     BlogEntity blogEntity;
