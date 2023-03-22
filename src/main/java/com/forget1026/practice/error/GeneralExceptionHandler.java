@@ -1,6 +1,6 @@
 package com.forget1026.practice.error;
 
-import feign.FeignException;
+import com.forget1026.practice.utils.ApiUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -15,18 +15,26 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.validation.ConstraintViolationException;
 
+import static com.forget1026.practice.utils.ApiUtils.error;
+
 @ControllerAdvice
 public class GeneralExceptionHandler {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private ResponseEntity<String> newResponse(Throwable throwable, HttpStatus status) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json");
-        return new ResponseEntity<>(throwable.getMessage(), headers, status);
+    private ResponseEntity<ApiUtils.ApiResult<?>> newResponse(Throwable throwable, HttpStatus status) {
+        return newResponse(throwable.getMessage(), status);
     }
 
+    private ResponseEntity<ApiUtils.ApiResult<?>> newResponse(String message, HttpStatus status) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        return new ResponseEntity<>(error(message, status), headers, status);
+    }
+
+// 필요한 경우 적절한 예외타입을 선언하고 newResponse 메소드를 통해 응답을 생성하도록 합니다.
+
     @ExceptionHandler({
-            NoHandlerFoundException.class,
+            NoHandlerFoundException.class
     })
     public ResponseEntity<?> handleNotFoundException(Exception e) {
         return newResponse(e, HttpStatus.NOT_FOUND);
@@ -37,11 +45,16 @@ public class GeneralExceptionHandler {
             IllegalStateException.class,
             ConstraintViolationException.class,
             MethodArgumentNotValidException.class,
-            HttpMessageNotReadableException.class,
-            FeignException.BadRequest.class
+            HttpMessageNotReadableException.class
     })
     public ResponseEntity<?> handleBadRequestException(Exception e) {
         log.debug("Bad request exception occurred: {}", e.getMessage(), e);
+        if (e instanceof MethodArgumentNotValidException) {
+            return newResponse(
+                    ((MethodArgumentNotValidException) e).getBindingResult().getAllErrors().get(0).getDefaultMessage(),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
         return newResponse(e, HttpStatus.BAD_REQUEST);
     }
 
@@ -52,7 +65,7 @@ public class GeneralExceptionHandler {
 
     @ExceptionHandler({Exception.class, RuntimeException.class})
     public ResponseEntity<?> handleException(Exception e) {
-        log.error("Unexpected exception occurred: {}", e.getMessage(), e);
+        log.error("Unexpected exception occurred: {}", e.getMessage());
         return newResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

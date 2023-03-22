@@ -49,16 +49,20 @@ public class PracticeRestService {
         }
         int start = byId.getPageableCount() - (request.getPage() - 1) * request.getSize();
         if (request.getSortType() == SortType.accuracy) {
+            // 정확하게 데이터가 있는 경우
             List<BlogEntity> blogEntitiesByAccuracy = blogRepository.findBlogEntitiesByQueryAndAccuracy(start, start - request.getSize(), request.getQuery());
             if (blogEntitiesByAccuracy.size() == request.getSize()) {
                 return BlogEntityMapper.INSTANCE.blogEntityToSearchQueryResponse(blogEntitiesByAccuracy);
             }
+            // 데이터가 일부만 있는 경우
             return BlogEntityMapper.INSTANCE.blogEntityToSearchQueryResponse(updateBlogEntityByAccuracy(request, byId));
         }
         List<BlogEntity> blogEntitiesByRecency = blogRepository.findBlogEntitiesByQueryAndRecency(start, start - request.getSize(), request.getQuery());
         if (blogEntitiesByRecency.size() == request.getSize()) {
+            // 정확하게 데이터가 있는 경우
             return BlogEntityMapper.INSTANCE.blogEntityToSearchQueryResponse(blogEntitiesByRecency);
         }
+        // 데이터가 일부만 있는 경우
         return BlogEntityMapper.INSTANCE.blogEntityToSearchQueryResponse(updateBlogEntityByRecency(request, byId));
     }
 
@@ -169,6 +173,7 @@ public class PracticeRestService {
 
         List<BlogEntity> insertData = new ArrayList<>();
         for (BlogEntity blogEntity : blogEntities) {
+            // Blog URL을 통한 블로그 정보 체크
             Optional<BlogEntity> blogEntitiesByUrl = blogRepository.findBlogEntitiesByUrl(blogEntity.getUrl());
             if (blogEntitiesByUrl.isPresent()) {
                 insertData.add(blogEntitiesByUrl.get());

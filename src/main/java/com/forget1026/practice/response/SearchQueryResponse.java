@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchQueryResponse {
-    @Schema(name = "질문", example = "테스트")
+    @Schema(example = "테스트")
     private String query;
-    @Schema(name = "조회수", example = "11")
+    @Schema(example = "11")
     private Long count;
 
     public SearchQueryResponse(PracticeList practiceList) {

@@ -1,6 +1,5 @@
 package com.forget1026.practice.repository;
 
-import com.forget1026.practice.entity.AccuracyEntity;
 import com.forget1026.practice.entity.RecencyEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
