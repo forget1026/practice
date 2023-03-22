@@ -20,10 +20,10 @@ class PracticeRestControllerTest {
     MockMvc mvc;
 
     @Test
-    @DisplayName("validation 테스트")
+    @DisplayName("validation 데이터")
     public void validationCheckTest() throws Exception {
         MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-        param.add("query", "테스트");
+        param.add("query", "데이터");
         param.add("size", "-1");
 
         mvc.perform(get("/search")
@@ -32,7 +32,7 @@ class PracticeRestControllerTest {
                 .andDo(print());
 
         param.clear();
-        param.add("query", "테스트");
+        param.add("query", "데이터");
         param.add("page", "-1");
 
         mvc.perform(get("/search")
@@ -49,7 +49,7 @@ class PracticeRestControllerTest {
                 .andDo(print());
 
         param.clear();
-        param.add("query", "테스트");
+        param.add("query", "데이터");
         mvc.perform(get("/search")
                         .params(param))
                 .andExpect(status().isOk())
@@ -57,10 +57,10 @@ class PracticeRestControllerTest {
     }
 
     @Test
-    @DisplayName("카운팅 테스트")
+    @DisplayName("카운팅 데이터")
     public void countCheckTest() throws Exception {
         MultiValueMap<String, String> param = new LinkedMultiValueMap<>();
-        param.add("query", "테스트");
+        param.add("query", "데이터");
 
         for (int i = 0; i < 10; i++) {
             mvc.perform(get("/search")

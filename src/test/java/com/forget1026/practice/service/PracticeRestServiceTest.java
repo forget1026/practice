@@ -48,6 +48,7 @@ class PracticeRestServiceTest {
         latch.await();
 
         List<SearchQueryResponse> searchQueryList = service.getSearchQueryList();
+        log.info("result : " + searchQueryList.get(0).toString());
 
         assertThat(searchQueryList.get(0).getCount()).isEqualTo(execute);
     }
