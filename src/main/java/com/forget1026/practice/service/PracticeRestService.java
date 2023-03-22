@@ -18,9 +18,9 @@ import com.forget1026.practice.response.SearchQueryResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,17 +44,17 @@ public class PracticeRestService {
         }
         int start = byId.getPageableCount() - (request.getPage() - 1) * request.getSize();
         if (request.getSortType() == SortType.accuracy) {
-            List<BlogEntity> blogEntitiesByAccuracy = blogRepository.findBlogEntitiesByAccuracy(start, start - request.getSize());
+            List<BlogEntity> blogEntitiesByAccuracy = blogRepository.findBlogEntitiesByQueryAndAccuracy(start, start - request.getSize(), request.getQuery());
             if (blogEntitiesByAccuracy.size() == request.getSize()) {
                 return blogEntitiesByAccuracy;
             }
-            return updateBlogEntity(request, byId);
+            return updateBlogEntityByAccuracy(request, byId);
         }
-        List<BlogEntity> blogEntitiesByAccuracy = blogRepository.findBlogEntitiesByRecency(start, start - request.getSize());
-        if (blogEntitiesByAccuracy.size() == request.getSize()) {
-            return blogEntitiesByAccuracy;
+        List<BlogEntity> blogEntitiesByRecency = blogRepository.findBlogEntitiesByQueryAndRecency(start, start - request.getSize(), request.getQuery());
+        if (blogEntitiesByRecency.size() == request.getSize()) {
+            return blogEntitiesByRecency;
         }
-        return null;
+        return updateBlogEntityByRecency(request, byId);
     }
 
     // insert 처리
@@ -70,7 +70,7 @@ public class PracticeRestService {
             List<AccuracyEntity> accuracyEntityList = new ArrayList<>();
             blogEntities.forEach(data -> {
                 AccuracyEntity build = AccuracyEntity.builder()
-                        .id(start.getAndDecrement())
+                        .idx(start.getAndDecrement())
                         .build();
                 data.setAccuracy(build);
                 accuracyEntityList.add(build);
@@ -92,25 +92,97 @@ public class PracticeRestService {
             recencyRepository.saveAll(recencyEntities);
         }
         practiceListRepository.save(byId);
+
         return blogEntities;
     }
 
-    private List<BlogEntity> updateBlogEntity(SearchQueryRequest request,PracticeList byId) {
+    private List<BlogEntity> updateBlogEntityByAccuracy(SearchQueryRequest request, PracticeList byId) {
         // 데이터 받기
         PracticeKakaoDTO result = kakaoAPIClient.getBlogData(apiKeys.getKAKAO_KEY(), request);
         // 데이터 변환
         List<BlogEntity> blogEntities = BlogEntityMapper.INSTANCE.DocumentsToBlogEntity(result.getDocuments());
-        // accuracy 설정
-        if (request.getSortType() == SortType.accuracy) {
-            int start = byId.getPageableCount() - request.getSize() * (request.getPage() - 1);
-            int end = start - request.getSize();
-            List<BlogEntity> current = blogRepository.findBlogEntitiesByAccuracy(start, end);
+        List<BlogEntity> insertData = checkData(blogEntities);
+        if (!Objects.equals(byId.getPageableCount(), result.getMeta().getPageable_count())) {
+            byId.setPageableCount(result.getMeta().getPageable_count());
+        }
 
-        } else {
-
+        int start = byId.getPageableCount() - request.getSize() * (request.getPage() - 1);
+        int end = Math.max(start - request.getSize(), 0);
+        List<AccuracyEntity> insertAccuracy = new ArrayList<>();
+        Map<Integer, AccuracyEntity> collect = accuracyRepository.findAccuracyEntitiesByIdxBetweenOrderByIdxDesc(end, start, request.getQuery())
+                .stream().collect(Collectors.toMap(AccuracyEntity::getIdx, Function.identity()));
+        // accuracy 관련 수정
+        for (int i = start; i > end; i--) {
+            BlogEntity blogEntity = insertData.get(start - i);
+            if (collect.containsKey(i)) {
+                blogEntity.setAccuracy(collect.get(i));
+            } else {
+                AccuracyEntity accuracy = AccuracyEntity.builder()
+                        .idx(i)
+                        .build();
+                blogEntity.setAccuracy(accuracy);
+                accuracy.setPracticeList(byId);
+                insertAccuracy.add(accuracy);
+            }
         }
         // 저장
+        blogRepository.saveAll(insertData);
+        accuracyRepository.saveAll(insertAccuracy);
+        practiceListRepository.save(byId);
+
         return blogEntities;
+    }
+
+    private List<BlogEntity> updateBlogEntityByRecency(SearchQueryRequest request, PracticeList byId) {
+        // 데이터 받기
+        PracticeKakaoDTO result = kakaoAPIClient.getBlogData(apiKeys.getKAKAO_KEY(), request);
+        // 데이터 변환
+        List<BlogEntity> blogEntities = BlogEntityMapper.INSTANCE.DocumentsToBlogEntity(result.getDocuments());
+        // 넣어야 되는 데이터 추리기
+        List<BlogEntity> insertData = checkData(blogEntities);
+        if (!Objects.equals(byId.getPageableCount(), result.getMeta().getPageable_count())) {
+            byId.setPageableCount(result.getMeta().getPageable_count());
+        }
+
+        int start = byId.getPageableCount() - request.getSize() * (request.getPage() - 1);
+        int end = Math.max(start - request.getSize(), 0);
+        List<RecencyEntity> insertRecency = new ArrayList<>();
+        Map<Integer, RecencyEntity> collect = recencyRepository.findRecencyEntitiesByIdxBetweenOrderByIdxDesc(end, start, request.getQuery())
+                .stream().collect(Collectors.toMap(RecencyEntity::getIdx, Function.identity()));
+        for (int i = start; i > end; i--) {
+            BlogEntity blogEntity = insertData.get(start - i);
+            if (collect.containsKey(i)) {
+                blogEntity.setRecency(collect.get(i));
+            } else {
+                RecencyEntity recency = RecencyEntity.builder()
+                        .idx(i)
+                        .build();
+                blogEntity.setRecency(recency);
+                recency.setPracticeList(byId);
+                insertRecency.add(recency);
+            }
+        }
+        // 저장
+        blogRepository.saveAll(insertData);
+        recencyRepository.saveAll(insertRecency);
+        practiceListRepository.save(byId);
+
+        return blogEntities;
+    }
+
+    List<BlogEntity> checkData(List<BlogEntity> blogEntities) {
+        // blog data 처리 - recency랑 중복 될 꺼 같음.
+        List<BlogEntity> insertData = new ArrayList<>();
+        for (BlogEntity blogEntity : blogEntities) {
+            Optional<BlogEntity> blogEntitiesByUrl = blogRepository.findBlogEntitiesByUrl(blogEntity.getUrl());
+            if (blogEntitiesByUrl.isPresent()) {
+                insertData.add(blogEntitiesByUrl.get());
+            } else {
+                insertData.add(blogEntity);
+            }
+        }
+
+        return insertData;
     }
 
     public List<SearchQueryResponse> getSearchQueryList() {

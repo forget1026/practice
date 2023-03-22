@@ -12,4 +12,6 @@ public interface BlogEntityMapper {
     BlogEntityMapper INSTANCE = Mappers.getMapper(BlogEntityMapper.class);
 
     List<BlogEntity> DocumentsToBlogEntity(List<Documents> documents);
+
+    BlogEntity DocumentToBlogEntity(Documents documents);
 }

@@ -12,9 +12,13 @@ import javax.persistence.*;
 @AllArgsConstructor
 public class RecencyEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @OneToOne(mappedBy = "recency")
+    private Integer idx;
+
+    @ManyToOne
+    @JoinColumn(name = "blog_entity_id")
     BlogEntity blogEntity;
 
     @ManyToOne

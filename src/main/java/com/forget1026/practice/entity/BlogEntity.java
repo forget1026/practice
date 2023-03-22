@@ -5,6 +5,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,22 +34,22 @@ public class BlogEntity extends JpaBaseEntity {
     private ZonedDateTime datetime;     // 블로그 글 작성시간
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "accuracy_id")
-    private AccuracyEntity accuracy;
+    @Builder.Default
+    @OneToMany(mappedBy = "blogEntity")
+    private Set<AccuracyEntity> accuracyEntityList = new HashSet<>();
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "recency_id")
-    private RecencyEntity recency;
+    @Builder.Default
+    @OneToMany(mappedBy = "blogEntity")
+    private Set<RecencyEntity> recencyEntityList = new HashSet<>();
 
     public void setAccuracy(AccuracyEntity accuracyEntity) {
-        this.accuracy = accuracyEntity;
+        this.accuracyEntityList.add(accuracyEntity);
         accuracyEntity.setBlogEntity(this);
     }
 
     public void setRecency(RecencyEntity recencyEntity) {
-        this.recency = recencyEntity;
+        this.recencyEntityList.add(recencyEntity);
         recencyEntity.setBlogEntity(this);
     }
 }
