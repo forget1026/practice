@@ -22,7 +22,7 @@ import java.util.List;
 public class PracticeRestController {
     private final PracticeRestService practiceRestService;
 
-    @Operation(summary = "회원 탈퇴 요청", description = "회원 정보가 삭제됩니다.", tags = { "Member Controller" })
+    @Operation(summary = "검색 요청", description = "카카오 블로그 데이터 검색", tags = { "PracticeRestController Controller" })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = SearchQueryResultResponse.class))),
@@ -36,6 +36,7 @@ public class PracticeRestController {
     }
 
     @GetMapping("/top10")
+    @Operation(summary = "검색 순위", description = "카카오 블로그 데이터 검색 순위", tags = { "PracticeRestController Controller" })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK",
                     content = @Content(schema = @Schema(implementation = SearchQueryResponse.class))),
