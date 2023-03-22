@@ -25,10 +25,7 @@ public class PracticeRestController {
     @Operation(summary = "검색 요청", description = "카카오 블로그 데이터 검색", tags = { "PracticeRestController Controller" })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = SearchQueryResultResponse.class))),
-            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
-            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
+                    content = @Content(schema = @Schema(implementation = SearchQueryResultResponse.class)))
     })
     @GetMapping("/search")
     public List<SearchQueryResultResponse> getBlogData(@ModelAttribute @Valid SearchQueryRequest request) {
@@ -39,10 +36,7 @@ public class PracticeRestController {
     @Operation(summary = "검색 순위", description = "카카오 블로그 데이터 검색 순위", tags = { "PracticeRestController Controller" })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK",
-                    content = @Content(schema = @Schema(implementation = SearchQueryResponse.class))),
-            @ApiResponse(responseCode = "400", description = "BAD REQUEST"),
-            @ApiResponse(responseCode = "404", description = "NOT FOUND"),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
+                    content = @Content(schema = @Schema(implementation = SearchQueryResponse.class)))
     })
     public List<SearchQueryResponse> getSearchQueryList() {
         return practiceRestService.getSearchQueryList();
