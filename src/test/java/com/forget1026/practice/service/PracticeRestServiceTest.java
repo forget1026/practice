@@ -23,7 +23,7 @@ class PracticeRestServiceTest {
     PracticeRestService service;
 
     @Test
-    @DisplayName("락 관련 테스트")
+    @DisplayName("조회수 락 관련 테스트")
     void checkLockTest() throws InterruptedException {
         SearchQueryRequest request = SearchQueryRequest.builder()
                 .query("테스트")

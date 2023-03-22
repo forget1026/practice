@@ -1,6 +1,7 @@
 package com.forget1026.practice.response;
 
 import com.forget1026.practice.entity.PracticeList;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchQueryResponse {
+    @Schema(name = "질문", example = "테스트")
     private String query;
+    @Schema(name = "조회수", example = "11")
     private Long count;
 
     public SearchQueryResponse(PracticeList practiceList) {
